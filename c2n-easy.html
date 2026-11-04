@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>柔美花語 ✿ 自訂大小搶數遊戲</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #fbf7f8 0%, #f0f4f9 100%);
+            padding: 20px;
+            color: #5a6578;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(210, 190, 200, 0.25), 0 5px 15px rgba(180, 200, 220, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 唯美花草裝飾 SVG */
+        .flower-decoration-top {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 110px;
+            height: 110px;
+            opacity: 0.65;
+            pointer-events: none;
+        }
+
+        .flower-decoration-bottom {
+            position: absolute;
+            bottom: -15px;
+            left: -15px;
+            width: 120px;
+            height: 120px;
+            opacity: 0.65;
+            pointer-events: none;
+            transform: rotate(180deg);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 500;
+            color: #6a7c92;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #b0a0aa;
+            letter-spacing: 1px;
+        }
+
+        /* 自訂大小設定面板 */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .input-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-wrapper label {
+            font-size: 12px;
+            color: #8c9ba5;
+            margin-bottom: 4px;
+            padding-left: 2px;
+            font-weight: 500;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1.5px solid #e3e8ee;
+            border-radius: 12px;
+            background: #fcfbfe;
+            color: #556070;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: #ffd6e0;
+            box-shadow: 0 0 0 3px rgba(255, 214, 224, 0.3);
+            background: #ffffff;
+        }
+
+        /* 經典計數器主顯示區 */
+        .board {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #f0e6eb;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .current-turn-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            background: #ffeef2;
+            color: #e6738f;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .current-turn-badge.p2-turn {
+            background: #eef4ff;
+            color: #5b86e5;
+        }
+
+        .number-display {
+            font-size: 52px;
+            font-weight: 700;
+            color: #5a6578;
+            line-height: 1;
+            margin-bottom: 15px;
+            transition: transform 0.2s ease;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #f0f4f9;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #a8c0ff 0%, #fbc2eb 100%);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+
+        /* 動態加法按鈕區 */
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+        }
+
+        .add-btn {
+            flex: 1;
+            min-width: 60px;
+            padding: 12px 8px;
+            border: none;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1.5px solid #e8ecf2;
+            color: #6a7c92;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            transition: all 0.25s ease;
+        }
+
+        .add-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: #a8c0ff;
+            color: #5b86e5;
+            box-shadow: 0 6px 15px rgba(168, 192, 255, 0.3);
+            background: #fcfdfe;
+        }
+
+        .add-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            border-color: #eee;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #a8c0ff 0%, #fbc2eb 100%);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(230, 180, 200, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 18px;
+        }
+
+        .reset-btn:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+
+        /* 歷程紀錄 */
+        .history-card {
+            background: rgba(255, 255, 255, 0.65);
+            border-radius: 14px;
+            padding: 12px 15px;
+            border: 1px solid #f0e6eb;
+            max-height: 110px;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .history-card h3 {
+            font-size: 12px;
+            color: #a0acb8;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .history-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .history-item {
+            font-size: 13px;
+            color: #6a7c92;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed #edf1f5;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-add {
+            color: #e6738f;
+            font-weight: 600;
+        }
+
+        /* 勝利彈窗 */
+        .winner-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s ease;
+            border-radius: 24px;
+        }
+
+        .winner-modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .winner-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #6a7c92;
+            margin-bottom: 10px;
+        }
+
+        .winner-sub {
+            font-size: 15px;
+            color: #8c9ba5;
+            margin-bottom: 25px;
+        }
+
+        .play-again-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #a8c0ff 0%, #fbc2eb 100%);
+            color: white;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(210, 160, 190, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .play-again-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-card">
+    <!-- 右上角櫻花 SVG 裝飾 -->
+    <svg class="flower-decoration-top" viewBox="0 0 100 100">
+        <path d="M70,30 C75,15 90,20 85,35 C95,45 85,60 70,55 C65,70 50,65 55,50 C40,45 50,30 65,35 Z" fill="#ffd6e0" opacity="0.6"/>
+        <circle cx="70" cy="42" r="5" fill="#f7aef8"/>
+        <path d="M40,20 Q55,10 65,25" stroke="#a8c0ff" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <circle cx="40" cy="20" r="3" fill="#b8c0ff"/>
+        <circle cx="70" cy="90" r="3.5" fill="#ffd1dc"/>
+    </svg>
+
+    <!-- 左下角花草 SVG 裝飾 -->
+    <svg class="flower-decoration-bottom" viewBox="0 0 100 100">
+        <path d="M70,30 C75,15 90,20 85,35 C95,45 85,60 70,55 C65,70 50,65 55,50 C40,45 50,30 65,35 Z" fill="#b8c0ff" opacity="0.5"/>
+        <circle cx="70" cy="42" r="5" fill="#a8c0ff"/>
+        <path d="M40,20 Q55,10 65,25" stroke="#f7aef8" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <circle cx="40" cy="20" r="3" fill="#ffd6e0"/>
+    </svg>
+
+    <div class="header">
+        <h1>✿ 搶數對戰遊戲 ✿</h1>
+        <p>自訂目標數字與每回合加數上限，率先喊到目標者勝</p>
+    </div>
+
+    <!-- 自訂大小設定區 -->
+    <div class="settings-grid">
+        <div class="input-wrapper">
+            <label for="target-num-input">目標總數 (10~100)</label>
+            <input type="number" id="target-num-input" value="21" min="10" max="100" onchange="resetGame()">
+        </div>
+        <div class="input-wrapper">
+            <label for="max-step-input">每回合最多可加 (1~5)</label>
+            <input type="number" id="max-step-input" value="3" min="1" max="5" onchange="resetGame()">
+        </div>
+        <div class="input-wrapper">
+            <label for="mode-select">對戰模式</label>
+            <select id="mode-select" onchange="resetGame()">
+                <option value="ai">單人對抗 AI</option>
+                <option value="pvp">雙人同機對戰</option>
+            </select>
+        </div>
+        <div class="input-wrapper" id="ai-difficulty-group">
+            <label for="ai-select">AI 難度</label>
+            <select id="ai-select" onchange="resetGame()">
+                <option value="smart">挑戰模式 (必勝AI)</option>
+                <option value="easy">輕鬆模式 (隨機AI)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 主遊戲面板 -->
+    <div class="board">
+        <div class="current-turn-badge" id="turn-badge">玩家 1 的回合</div>
+        <div class="number-display" id="num-display">0</div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- 操作按鈕區 (動態生成) -->
+    <div class="actions" id="actions-container">
+        <!-- 動態生成 +1 ~ +Max 核心按鈕 -->
+    </div>
+
+    <button class="reset-btn" onclick="resetGame()">套用設定並重置遊戲</button>
+
+    <!-- 歷程紀錄 -->
+    <div class="history-card">
+        <h3>報數歷程紀錄</h3>
+        <ul class="history-list" id="history-list">
+            <!-- 動態插入 -->
+        </ul>
+    </div>
+
+    <!-- 勝利彈窗 -->
+    <div class="winner-modal" id="winner-modal">
+        <div class="winner-title" id="winner-title">✿ 玩家 1 獲勝！ ✿</div>
+        <div class="winner-sub" id="winner-sub">順利喊到了目標數字！</div>
+        <button class="play-again-btn" onclick="resetGame()">再開一局</button>
+    </div>
+</div>
+
+<script>
+    let currentNum = 0;
+    let targetNum = 21;
+    let maxStep = 3;
+    let currentPlayer = 1; // 1: 玩家1, 2: 玩家2/AI
+    let isGameOver = false;
+
+    function initGameConfig() {
+        // 讀取並限制輸入數值
+        let targetInput = parseInt(document.getElementById('target-num-input').value) || 21;
+        targetNum = Math.max(10, Math.min(100, targetInput));
+        document.getElementById('target-num-input').value = targetNum;
+
+        let stepInput = parseInt(document.getElementById('max-step-input').value) || 3;
+        maxStep = Math.max(1, Math.min(5, stepInput));
+        document.getElementById('max-step-input').value = maxStep;
+
+        // 根據 maxStep 動態生成 +1 ~ +maxStep 按鈕
+        const actionsContainer = document.getElementById('actions-container');
+        actionsContainer.innerHTML = '';
+        for (let s = 1; s <= maxStep; s++) {
+            const btn = document.createElement('button');
+            btn.className = 'add-btn';
+            btn.id = `btn-${s}`;
+            btn.innerText = `＋ ${s}`;
+            btn.onclick = () => playerMove(s);
+            actionsContainer.appendChild(btn);
+        }
+    }
+
+    function playerMove(addVal) {
+        if (isGameOver) return;
+
+        executeMove(currentPlayer, addVal);
+
+        if (currentNum >= targetNum) {
+            endGame(currentPlayer);
+            return;
+        }
+
+        const mode = document.getElementById('mode-select').value;
+        if (mode === 'ai') {
+            currentPlayer = 2;
+            updateUI();
+            disableButtons(true);
+            setTimeout(aiMove, 600);
+        } else {
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            updateUI();
+        }
+    }
+
+    function aiMove() {
+        if (isGameOver) return;
+
+        const difficulty = document.getElementById('ai-select').value;
+        let choice = 1;
+        const stepPeriod = maxStep + 1; // 週期步長
+
+        if (difficulty === 'smart') {
+            // 通用必勝演算法：餘數餘數 match (targetNum % (maxStep + 1))
+            let rem = (targetNum - currentNum) % stepPeriod;
+            if (rem !== 0) {
+                choice = rem;
+            } else {
+                const maxChoices = Math.min(maxStep, targetNum - currentNum);
+                choice = Math.floor(Math.random() * maxChoices) + 1;
+            }
+        } else {
+            const maxChoices = Math.min(maxStep, targetNum - currentNum);
+            choice = Math.floor(Math.random() * maxChoices) + 1;
+        }
+
+        executeMove('AI', choice);
+
+        if (currentNum >= targetNum) {
+            endGame('AI');
+            return;
+        }
+
+        currentPlayer = 1;
+        updateUI();
+        disableButtons(false);
+    }
+
+    function executeMove(player, addVal) {
+        const start = currentNum + 1;
+        currentNum += addVal;
+        const end = currentNum;
+
+        let numRangeStr = addVal === 1 ? `${end}` : `${start} ~ ${end}`;
+        const playerName = typeof player === 'number' ? `玩家 ${player}` : player;
+        addHistory(playerName, numRangeStr, addVal);
+    }
+
+    function updateUI() {
+        const numDisplay = document.getElementById('num-display');
+        const progressFill = document.getElementById('progress-fill');
+        const turnBadge = document.getElementById('turn-badge');
+        const mode = document.getElementById('mode-select').value;
+
+        // 更新數字與進度條
+        numDisplay.innerText = currentNum;
+        progressFill.style.width = `${(currentNum / targetNum) * 100}%`;
+
+        // 數字跳動動畫
+        numDisplay.style.transform = 'scale(1.15)';
+        setTimeout(() => numDisplay.style.transform = 'scale(1)', 150);
+
+        // 回合標示
+        if (mode === 'ai') {
+            if (currentPlayer === 1) {
+                turnBadge.innerText = '玩家的回合';
+                turnBadge.classList.remove('p2-turn');
+            } else {
+                turnBadge.innerText = 'AI 思考中...';
+                turnBadge.classList.add('p2-turn');
+            }
+        } else {
+            if (currentPlayer === 1) {
+                turnBadge.innerText = '玩家 1 的回合';
+                turnBadge.classList.remove('p2-turn');
+            } else {
+                turnBadge.innerText = '玩家 2 的回合';
+                turnBadge.classList.add('p2-turn');
+            }
+        }
+
+        // 動態停用超過 targetNum 的按鈕
+        for (let i = 1; i <= maxStep; i++) {
+            const btn = document.getElementById(`btn-${i}`);
+            if (btn) {
+                if (currentNum + i > targetNum) {
+                    btn.disabled = true;
+                } else if (currentPlayer === 1 || mode === 'pvp') {
+                    btn.disabled = false;
+                }
+            }
+        }
+    }
+
+    function disableButtons(disabled) {
+        for (let i = 1; i <= maxStep; i++) {
+            const btn = document.getElementById(`btn-${i}`);
+            if (btn) {
+                if (!disabled && currentNum + i <= targetNum) {
+                    btn.disabled = false;
+                } else {
+                    btn.disabled = true;
+                }
+            }
+        }
+    }
+
+    function addHistory(player, rangeStr, addVal) {
+        const historyList = document.getElementById('history-list');
+        const li = document.createElement('li');
+        li.className = 'history-item';
+        li.innerHTML = `
+            <span class="history-player">${player}</span>
+            <span>喊出 <strong>${rangeStr}</strong></span>
+            <span class="history-add">+${addVal}</span>
+        `;
+        historyList.appendChild(li);
+
+        const historyCard = document.querySelector('.history-card');
+        historyCard.scrollTop = historyCard.scrollHeight;
+    }
+
+    function endGame(winner) {
+        isGameOver = true;
+        disableButtons(true);
+
+        const winnerModal = document.getElementById('winner-modal');
+        const winnerTitle = document.getElementById('winner-title');
+        const winnerSub = document.getElementById('winner-sub');
+        const mode = document.getElementById('mode-select').value;
+
+        let winnerText = '';
+        if (mode === 'ai') {
+            winnerText = winner === 1 ? '✿ 您獲得了勝利！ ✿' : '✿ AI 獲得了勝利！ ✿';
+        } else {
+            winnerText = `✿ 玩家 ${winner} 獲得了勝利！ ✿`;
+        }
+
+        winnerTitle.innerText = winnerText;
+        winnerSub.innerText = `順利喊到了目標數字 ${targetNum}！`;
+
+        setTimeout(() => {
+            winnerModal.classList.add('show');
+        }, 400);
+    }
+
+    function resetGame() {
+        currentNum = 0;
+        currentPlayer = 1;
+        isGameOver = false;
+
+        document.getElementById('winner-modal').classList.remove('show');
+        document.getElementById('history-list').innerHTML = '';
+
+        const mode = document.getElementById('mode-select').value;
+        const aiGroup = document.getElementById('ai-difficulty-group');
+
+        if (mode === 'pvp') {
+            aiGroup.style.display = 'none';
+        } else {
+            aiGroup.style.display = 'block';
+        }
+
+        initGameConfig();
+        updateUI();
+        disableButtons(false);
+    }
+
+    window.onload = resetGame;
+</script>
+
+</body>
+</html>

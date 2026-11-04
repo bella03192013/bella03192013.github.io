@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>柔美花語五則運算計算機</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #fbf7f8 0%, #f0f4f9 100%);
+            padding: 20px;
+            color: #5a6578;
+        }
+
+        .calculator-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(210, 190, 200, 0.25), 0 5px 15px rgba(180, 200, 220, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            width: 100%;
+            max-width: 480px;
+            padding: 35px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 唯美花草裝飾 SVG */
+        .flower-decoration-top {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 110px;
+            height: 110px;
+            opacity: 0.65;
+            pointer-events: none;
+        }
+
+        .flower-decoration-bottom {
+            position: absolute;
+            bottom: -15px;
+            left: -15px;
+            width: 120px;
+            height: 120px;
+            opacity: 0.65;
+            pointer-events: none;
+            transform: rotate(180deg);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 500;
+            color: #6a7c92;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #b0a0aa;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .input-field {
+            flex: 1;
+        }
+
+        .input-field label {
+            display: block;
+            font-size: 13px;
+            color: #8c9ba5;
+            margin-bottom: 8px;
+            padding-left: 4px;
+            font-weight: 500;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1.5px solid #e3e8ee;
+            border-radius: 14px;
+            background: #fcfbfe;
+            color: #556070;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .input-field input:focus {
+            border-color: #ffd6e0;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(255, 214, 224, 0.3);
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #a8c0ff 0%, #fbc2eb 100%);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(230, 180, 200, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 25px;
+        }
+
+        .calc-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(210, 160, 190, 0.5);
+            background: linear-gradient(135deg, #96b3ff 0%, #f9b1e2 100%);
+        }
+
+        .calc-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* 五種結果同時展示卡片區 */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid #f0e6eb;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            border-color: #a8c0ff;
+            transform: translateX(3px);
+        }
+
+        .op-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #72849a;
+        }
+
+        .op-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* 五色彩繪徽章風格 */
+        .op-add { background: #ffeef2; color: #e6738f; }
+        .op-sub { background: #eef4ff; color: #5b86e5; }
+        .op-mul { background: #fff8ee; color: #e59a5b; }
+        .op-div { background: #effbf8; color: #42b893; }
+        .op-mod { background: #f6eeff; color: #9c68e5; }
+
+        .result-val {
+            font-size: 16px;
+            font-weight: 600;
+            color: #4a5568;
+            word-break: break-all;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .error-text {
+            color: #e56b6b;
+            font-size: 13px;
+            font-weight: 400;
+        }
+
+        @media (max-width: 480px) {
+            .calculator-card {
+                padding: 25px 20px;
+            }
+            .input-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator-card">
+    <!-- 右上角櫻花 / 花草 SVG 裝飾 -->
+    <svg class="flower-decoration-top" viewBox="0 0 100 100">
+        <path d="M70,30 C75,15 90,20 85,35 C95,45 85,60 70,55 C65,70 50,65 55,50 C40,45 50,30 65,35 Z" fill="#ffd6e0" opacity="0.6"/>
+        <circle cx="70" cy="42" r="5" fill="#f7aef8"/>
+        <path d="M40,20 Q55,10 65,25" stroke="#a8c0ff" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M75,65 Q85,80 70,90" stroke="#a8c0ff" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <circle cx="40" cy="20" r="3" fill="#b8c0ff"/>
+        <circle cx="70" cy="90" r="3.5" fill="#ffd1dc"/>
+    </svg>
+
+    <!-- 左下角花草 SVG 裝飾 -->
+    <svg class="flower-decoration-bottom" viewBox="0 0 100 100">
+        <path d="M70,30 C75,15 90,20 85,35 C95,45 85,60 70,55 C65,70 50,65 55,50 C40,45 50,30 65,35 Z" fill="#b8c0ff" opacity="0.5"/>
+        <circle cx="70" cy="42" r="5" fill="#a8c0ff"/>
+        <path d="M40,20 Q55,10 65,25" stroke="#f7aef8" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <circle cx="40" cy="20" r="3" fill="#ffd6e0"/>
+    </svg>
+
+    <div class="header">
+        <h1>✿ 柔美花語計算機 ✿</h1>
+        <p>請輸入兩個數值，將為您同步呈現五種運算</p>
+    </div>
+
+    <div class="input-group">
+        <div class="input-field">
+            <label for="num1">第一個數值 A</label>
+            <input type="number" id="num1" placeholder="例如: 12" step="any" value="12">
+        </div>
+        <div class="input-field">
+            <label for="num2">第二個數值 B</label>
+            <input type="number" id="num2" placeholder="例如: 5" step="any" value="5">
+        </div>
+    </div>
+
+    <button class="calc-btn" onclick="calculateAll()">一鍵生成五種結果</button>
+
+    <div class="results-grid">
+        <div class="result-item">
+            <div class="op-badge">
+                <span class="op-icon op-add">＋</span>
+                <span>加法 (A + B)</span>
+            </div>
+            <div class="result-val" id="res-add">17</div>
+        </div>
+
+        <div class="result-item">
+            <div class="op-badge">
+                <span class="op-icon op-sub">－</span>
+                <span>減法 (A - B)</span>
+            </div>
+            <div class="result-val" id="res-sub">7</div>
+        </div>
+
+        <div class="result-item">
+            <div class="op-badge">
+                <span class="op-icon op-mul">×</span>
+                <span>乘法 (A × B)</span>
+            </div>
+            <div class="result-val" id="res-mul">60</div>
+        </div>
+
+        <div class="result-item">
+            <div class="op-badge">
+                <span class="op-icon op-div">÷</span>
+                <span>除法 (A ÷ B)</span>
+            </div>
+            <div class="result-val" id="res-div">2.4</div>
+        </div>
+
+        <div class="result-item">
+            <div class="op-badge">
+                <span class="op-icon op-mod">％</span>
+                <span>取餘數 (A % B)</span>
+            </div>
+            <div class="result-val" id="res-mod">2</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculateAll() {
+        const val1 = document.getElementById('num1').value;
+        const val2 = document.getElementById('num2').value;
+
+        const resAdd = document.getElementById('res-add');
+        const resSub = document.getElementById('res-sub');
+        const resMul = document.getElementById('res-mul');
+        const resDiv = document.getElementById('res-div');
+        const resMod = document.getElementById('res-mod');
+
+        if (val1 === '' || val2 === '') {
+            const emptyMsg = '<span class="error-text">請輸入數值</span>';
+            resAdd.innerHTML = emptyMsg;
+            resSub.innerHTML = emptyMsg;
+            resMul.innerHTML = emptyMsg;
+            resDiv.innerHTML = emptyMsg;
+            resMod.innerHTML = emptyMsg;
+            return;
+        }
+
+        const num1 = parseFloat(val1);
+        const num2 = parseFloat(val2);
+
+        // 加法
+        resAdd.innerText = formatNumber(num1 + num2);
+
+        // 減法
+        resSub.innerText = formatNumber(num1 - num2);
+
+        // 乘法
+        resMul.innerText = formatNumber(num1 * num2);
+
+        // 除法
+        if (num2 === 0) {
+            resDiv.innerHTML = '<span class="error-text">除數不可為 0</span>';
+        } else {
+            resDiv.innerText = formatNumber(num1 / num2);
+        }
+
+        // 餘數
+        if (num2 === 0) {
+            resMod.innerHTML = '<span class="error-text">除數不可為 0</span>';
+        } else {
+            resMod.innerText = formatNumber(num1 % num2);
+        }
+    }
+
+    // 格式化數字（避免過長浮點數顯示問題）
+    function formatNumber(num) {
+        if (Number.isInteger(num)) {
+            return num.toString();
+        }
+        return parseFloat(num.toFixed(6)).toString();
+    }
+
+    // 頁面載入時自動計算一次
+    window.onload = calculateAll;
+</script>
+
+</body>
+</html>

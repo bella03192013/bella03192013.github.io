@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>柔美花語 ✿ MyApp 應用中心</title>
+  <!-- Google Fonts & Font Awesome 圖示 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #fff5f7 0%, #fce4ec 50%, #f3e5f5 100%);
+      --primary-color: #d81b60;
+      --primary-light: #f8bbd0;
+      --primary-dark: #880e4f;
+      --accent-color: #ab47bc;
+      --text-main: #4a2c3d;
+      --text-sub: #7b526a;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(248, 187, 208, 0.6);
+      --shadow-soft: 0 10px 30px rgba(216, 27, 96, 0.08);
+      --shadow-hover: 0 15px 35px rgba(216, 27, 96, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', 'Noto Serif TC', serif, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 背景飄落花瓣動畫容器 */
+    #petals-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .petal {
+      position: absolute;
+      background: linear-gradient(135deg, #ffcdd2, #f8bbd0);
+      border-radius: 150% 0 150% 0;
+      opacity: 0.7;
+      animation: animatePetal linear infinite;
+    }
+
+    @keyframes animatePetal {
+      0% {
+        opacity: 0.8;
+        transform: translate(0, -10px) rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(100px, 100vh) rotate(720deg);
+      }
+    }
+
+    /* 頂部導覽列 */
+    header {
+      position: relative;
+      z-index: 10;
+      padding: 2rem 1.5rem 1rem;
+      text-align: center;
+    }
+
+    .header-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      letter-spacing: 2px;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .header-subtitle {
+      font-size: 1rem;
+      color: var(--text-sub);
+      font-weight: 400;
+      letter-spacing: 1px;
+    }
+
+    /* 主體區域 */
+    main {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      flex: 1;
+      width: 100%;
+    }
+
+    /* 模式切換 Tabs */
+    .view-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--primary-light);
+      padding: 0.6rem 1.4rem;
+      border-radius: 25px;
+      color: var(--text-sub);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn:hover, .tab-btn.active {
+      background: var(--primary-color);
+      color: #fff;
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 15px rgba(216, 27, 96, 0.25);
+    }
+
+    /* 視圖一：卡片網格展示 */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .app-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-soft);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .app-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, #f8bbd0, #ab47bc);
+    }
+
+    .app-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--primary-light);
+    }
+
+    .card-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin-bottom: 1.2rem;
+      box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.8);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 0.6rem;
+    }
+
+    .card-desc {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      line-height: 1.5;
+      margin-bottom: 1.8rem;
+      flex-grow: 1;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 0.7rem 1rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #d81b60, #ab47bc);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+      box-shadow: 0 4px 12px rgba(216, 27, 96, 0.3);
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: var(--primary-color);
+      border: 1px solid var(--primary-light);
+    }
+
+    .btn-secondary:hover {
+      background: #fce4ec;
+    }
+
+    /* 視圖二：內嵌全螢幕框架 */
+    .frame-view {
+      display: none;
+      background: var(--card-bg);
+      border-radius: 20px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .frame-tabs {
+      display: flex;
+      background: rgba(248, 187, 208, 0.3);
+      border-bottom: 1px solid var(--card-border);
+      overflow-x: auto;
+    }
+
+    .frame-tab-btn {
+      padding: 1rem 1.5rem;
+      border: none;
+      background: transparent;
+      color: var(--text-sub);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: all 0.3s ease;
+    }
+
+    .frame-tab-btn.active {
+      background: #ffffff;
+      color: var(--primary-color);
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
+    }
+
+    .iframe-container {
+      width: 100%;
+      height: 70vh;
+      position: relative;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Modal 彈窗預覽 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(74, 44, 61, 0.4);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      width: 90%;
+      max-width: 900px;
+      height: 85vh;
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 1rem 1.5rem;
+      background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-weight: 700;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--primary-dark);
+      cursor: pointer;
+    }
+
+    .modal-body {
+      flex: 1;
+      width: 100%;
+    }
+
+    /* 頁腳 */
+    footer {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-sub);
+      font-size: 0.85rem;
+      margin-top: auto;
+    }
+
+    @media (max-width: 600px) {
+      .header-title { font-size: 1.6rem; }
+      .tab-btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
+      .iframe-container { height: 60vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 背景飄落花瓣效果 -->
+  <div id="petals-container"></div>
+
+  <!-- 頂部標題區 -->
+  <header>
+    <h1 class="header-title">
+      <i class="fa-solid font-awesome-logo-full fa-fan" style="color: #d81b60;"></i>
+      柔美花語 ✿ MyApp
+    </h1>
+    <p class="header-subtitle">精緻‧優雅‧趣味的微應用整合工作台</p>
+  </header>
+
+  <!-- 主體內容區 -->
+  <main>
+    <!-- 視圖切換 Tab -->
+    <div class="view-tabs">
+      <button class="tab-btn active" onclick="switchMainView('grid')">
+        <i class="fa-solid fa-border-all"></i> 卡片導覽
+      </button>
+      <button class="tab-btn" onclick="switchMainView('frame')">
+        <i class="fa-solid fa-window-maximize"></i> 整合頁面切換
+      </button>
+    </div>
+
+    <!-- 視圖一：卡片網格 -->
+    <section id="gridView" class="apps-grid">
+      
+      <!-- App 1: c2n-easy.html -->
+      <article class="app-card">
+        <div class="card-icon">
+          <i class="fa-solid fa-gamepad"></i>
+        </div>
+        <h2 class="card-title">自訂大小搶數遊戲</h2>
+        <p class="card-desc">輕鬆有趣的數字搶數對抗遊戲，支援自訂遊戲規模與難度，展現您的反應與策略！</p>
+        <div class="card-actions">
+          <button class="btn btn-secondary" onclick="openModal('c2n-easy.html', '柔美花語 ✿ 自訂大小搶數遊戲')">
+            <i class="fa-regular fa-eye"></i> 預覽
+          </button>
+          <a href="c2n-easy.html" class="btn btn-primary" target="_blank">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> 開啟
+          </a>
+        </div>
+      </article>
+
+      <!-- App 2: c2n-grid.html -->
+      <article class="app-card">
+        <div class="card-icon">
+          <i class="fa-solid fa-table-cells"></i>
+        </div>
+        <h2 class="card-title">網格搶數遊戲 (上限50格)</h2>
+        <p class="card-desc">進階版網格矩陣搶數挑戰，最高支援 50 格經典對局，考驗您的空間觀察與眼疾手快！</p>
+        <div class="card-actions">
+          <button class="btn btn-secondary" onclick="openModal('c2n-grid.html', '柔美花語 ✿ 網格搶數遊戲 (上限50格)')">
+            <i class="fa-regular fa-eye"></i> 預覽
+          </button>
+          <a href="c2n-grid.html" class="btn btn-primary" target="_blank">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> 開啟
+          </a>
+        </div>
+      </article>
+
+      <!-- App 3: calc5.html -->
+      <article class="app-card">
+        <div class="card-icon">
+          <i class="fa-solid fa-calculator"></i>
+        </div>
+        <h2 class="card-title">五則運算計算機</h2>
+        <p class="card-desc">結合浪漫花語視覺的強大計算工具，支援基礎算術與精準五則運算，讓計算變得優雅高效。</p>
+        <div class="card-actions">
+          <button class="btn btn-secondary" onclick="openModal('calc5.html', '柔美花語五則運算計算機')">
+            <i class="fa-regular fa-eye"></i> 預覽
+          </button>
+          <a href="calc5.html" class="btn btn-primary" target="_blank">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> 開啟
+          </a>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- 視圖二：內嵌 Iframe 頁籤切換 -->
+    <section id="frameView" class="frame-view">
+      <div class="frame-tabs">
+        <button class="frame-tab-btn active" onclick="loadFrame('c2n-easy.html', this)">
+          <i class="fa-solid fa-gamepad"></i> 自訂大小搶數
+        </button>
+        <button class="frame-tab-btn" onclick="loadFrame('c2n-grid.html', this)">
+          <i class="fa-solid fa-table-cells"></i> 網格搶數 (上限50格)
+        </button>
+        <button class="frame-tab-btn" onclick="loadFrame('calc5.html', this)">
+          <i class="fa-solid fa-calculator"></i> 五則運算計算機
+        </button>
+      </div>
+      <div class="iframe-container">
+        <iframe id="mainIframe" src="c2n-easy.html" title="Web App Container"></iframe>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal 預覽彈窗 -->
+  <div id="previewModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">
+          <i class="fa-solid fa-flower"></i> 應用預覽
+        </div>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <iframe id="modalIframe" src="" title="Preview Modal"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- 頁腳 -->
+  <footer>
+    <p>© 柔美花語 MyApp Collection ✿ Crafted with Care</p>
+  </footer>
+
+  <script>
+    // 櫻花花瓣生成器
+    function createPetals() {
+      const container = document.getElementById('petals-container');
+      const petalCount = 18;
+
+      for (let i = 0; i < petalCount; i++) {
+        const petal = document.createElement('div');
+        petal.classList.add('petal');
+        
+        // 隨機大小、位置、動畫長度
+        const size = Math.random() * 12 + 8;
+        petal.style.width = `${size}px`;
+        petal.style.height = `${size * 1.5}px`;
+        petal.style.left = `${Math.random() * 100}%`;
+        petal.style.animationDuration = `${Math.random() * 8 + 6}s`;
+        petal.style.animationDelay = `${Math.random() * 5}s`;
+        
+        container.appendChild(petal);
+      }
+    }
+
+    // 視圖切換 (卡片列表 vs 內嵌 Tab)
+    function switchMainView(viewType) {
+      const gridView = document.getElementById('gridView');
+      const frameView = document.getElementById('frameView');
+      const buttons = document.querySelectorAll('.view-tabs .tab-btn');
+
+      if (viewType === 'grid') {
+        gridView.style.display = 'grid';
+        frameView.style.display = 'none';
+        buttons[0].classList.add('active');
+        buttons[1].classList.remove('active');
+      } else {
+        gridView.style.display = 'none';
+        frameView.style.display = 'block';
+        buttons[0].classList.remove('active');
+        buttons[1].classList.add('active');
+      }
+    }
+
+    // 內嵌框架頁籤切換
+    function loadFrame(url, btnElement) {
+      const iframe = document.getElementById('mainIframe');
+      iframe.src = url;
+
+      const tabs = document.querySelectorAll('.frame-tab-btn');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      btnElement.classList.add('active');
+    }
+
+    // Modal 彈窗控制
+    function openModal(url, title) {
+      const modal = document.getElementById('previewModal');
+      const modalIframe = document.getElementById('modalIframe');
+      const modalTitle = document.getElementById('modalTitle');
+
+      modalIframe.src = url;
+      modalTitle.innerHTML = `<i class="fa-solid fa-flower"></i> ${title}`;
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('previewModal');
+      const modalIframe = document.getElementById('modalIframe');
+      modal.classList.remove('active');
+      modalIframe.src = '';
+    }
+
+    // 點擊彈窗外圍關閉 Modal
+    document.getElementById('previewModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+
+    // 初始化頁面
+    window.addEventListener('DOMContentLoaded', () => {
+      createPetals();
+    });
+  </script>
+</body>
+</html>
